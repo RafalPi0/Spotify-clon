@@ -1,6 +1,5 @@
 
 from django.shortcuts import render
-
 # Create your views here.
 from django.http import HttpResponse
 from django.views.generic.list import ListView
@@ -9,9 +8,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormVi
 from django.urls import reverse_lazy
  
 from spotify.models import Song, PlaylistSong
-from .forms import PlaylistSongForm
-from .utils import searchSongs
-
+from spotify.forms import PlaylistSongForm
+from spotify.utils import searchSongs
 
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -30,26 +28,14 @@ class SongList(ListView):
         context = self.get_context_data()
         songs, search_query = searchSongs(request)
         context['songs']=songs
-        context['search_query']=search_query   
-        allow_empty = self.get_allow_empty()
-        if not allow_empty:
-        # When pagination is enabled and object_list is a queryset,
-        # it's better to do a cheap query than to load the unpaginated
-        # queryset in memory.
-            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
-                is_empty = not self.object_list.exists()
-            else:
-                is_empty = not self.object_list
-            if is_empty:
-                raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
-                    'class_name': self.__class__.__name__,
-                })     
+        context['search_query']=search_query               
         return self.render_to_response(context)
 
 class SongDetail(DetailView):
     model = Song
     template_name = 'spotify/single-song.html'
     context_object_name = 'song'   
+
     def get_context_data(self, **kwargs):
         context = super(SongDetail, self).get_context_data(**kwargs)
         context['user_list']= PlaylistSong.objects.filter(user=self.request.user)
@@ -62,13 +48,11 @@ class SongDetail(DetailView):
         context = self.get_context_data(object=self.object)
         list_title= request.POST['list_title']
         if request.user.is_authenticated:
-            list_title=request.POST['list_title']
-            # list_song_user= PlaylistSong.objects.filter(user=request.user).filter(list_title=list_title)
+            list_title=request.POST['list_title']            
             try:
                 list_song_user= PlaylistSong.objects.get(user=request.user, list_title=list_title)
                 print(list_song_user)
-                list_song_user.songs.add(self.object)
-            # list_title
+                list_song_user.songs.add(self.object)            
             except PlaylistSong.DoesNotExist:                
                 form = PlaylistSongForm(request.POST)
                 listSong = form.save(commit=False)
@@ -78,41 +62,7 @@ class SongDetail(DetailView):
         return self.render_to_response(context)
 	
 
-def index(request):
-    songs, search_query = searchSongs(request)
-    custom_range, songs = paginateSongs(request, songs, 6)
-    print(songs)
-    context = {'songs': songs,
-               'search_query': search_query, 'custom_range': custom_range}
-    # songs = Song.objects.all()
-    # context = { 'songs': songs}    
-    return render(request , 'spotify/home.html' ,context)
 
-
-def song(request, pk):
-    songObj = Song.objects.get(id=pk)    
-    user_list= PlaylistSong.objects.filter(user=request.user)
-    form = PlaylistSongForm()    
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            list_title=request.POST['list_title']
-            
-            try:
-                list_song_user= PlaylistSong.objects.get(user=request.user, list_title=list_title)
-                print(list_song_user)
-                list_song_user.songs.add(songObj)
-            # list_title
-            except PlaylistSong.DoesNotExist:                
-                form = PlaylistSongForm(request.POST)
-                listSong = form.save(commit=False)
-                listSong.user= request.user
-                listSong.save()
-            # review = form.save(commit=False)
-            # print(request.POST)
-            
-        
-    return render(request, 'spotify/single-song.html', {'song': songObj,'form': form
-    })
 
 class PlaylistSongList(LoginRequiredMixin, ListView):
     model = PlaylistSong
@@ -127,6 +77,7 @@ class PlaylistSongDetail(LoginRequiredMixin, DetailView):
     model = PlaylistSong
     context_object_name = 'playlist'
     template_name = 'spotify/playlist_detail.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)        
         context['songs'] = self.object.songs.all()
@@ -146,7 +97,6 @@ class PlaylistSongUpdate(LoginRequiredMixin, UpdateView):
     fields = ["list_title" , ]
     success_url = reverse_lazy('playlists')
 
-
 class PlaylistSongDeleteView(LoginRequiredMixin, DeleteView):
     model = PlaylistSong
     context_object_name = 'playlist'
@@ -155,3 +105,32 @@ class PlaylistSongDeleteView(LoginRequiredMixin, DeleteView):
         owner = self.request.user
         return self.model.objects.filter(user=owner)
 
+def index(request):
+    songs, search_query = searchSongs(request)
+    custom_range, songs = paginateSongs(request, songs, 6)
+    print(songs)
+    context = {'songs': songs,'search_query': search_query, 'custom_range': custom_range} 
+    return render(request , 'spotify/home.html' ,context)
+
+
+def song(request, pk):
+    songObj = Song.objects.get(id=pk)    
+    user_list= PlaylistSong.objects.filter(user=request.user)
+    form = PlaylistSongForm()    
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            list_title=request.POST['list_title']            
+            try:
+                list_song_user= PlaylistSong.objects.get(user=request.user, list_title=list_title)
+                print(list_song_user)
+                list_song_user.songs.add(songObj)            
+            except PlaylistSong.DoesNotExist:                
+                form = PlaylistSongForm(request.POST)
+                listSong = form.save(commit=False)
+                listSong.user= request.user
+                listSong.save()
+            
+            
+        
+    return render(request, 'spotify/single-song.html', {'song': songObj,'form': form
+    })

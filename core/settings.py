@@ -26,6 +26,7 @@ DEBUG = os.environ.get('DEBUG') == "True"
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
+
 ALLOWED_HOSTS = [os.environ.get('DOMAIN'),]
 if DEBUG:
     ALLOWED_HOSTS = ["*",]
