@@ -5,24 +5,14 @@ from .models import PlaylistSong
 
 
 class PlaylistSongForm(ModelForm):
+    
     class Meta:
         model = PlaylistSong
         fields = '__all__'
         
-        AGE_CHOICES = (
-                ('', 'Select an age'),
-                ('10', '10'), #First one is the value of select option and second is the displayed value in option
-                ('15', '15'),
-                ('20', '20'),
-                ('25', '25'),
-                ('26', '26'),
-                ('27', '27'),
-                ('28', '28'),
-                )
-        widgets = {
-            'list_title': forms.Select(choices=AGE_CHOICES,attrs={'class': 'form-control'}),
-        }
+       
         exclude = ('user',"songs",)
+    
        
 
     # def __init__(self, *args, **kwargs):
