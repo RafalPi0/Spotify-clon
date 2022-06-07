@@ -1,0 +1,37 @@
+{% extends "main.html" %} {% block content %}
+<a  href="{{request.META.HTTP_REFERER}}">Go back</a>
+<div id="palylist" class="palylist-items-wrapper ">
+    <div class="item--head">
+        <div class="palylist">Palylist</div>
+        <h1>{{playlist.list_title}}</h1>
+    </div>
+    
+    {% if songs %}
+    <h3>List of songs</h3>
+    {% endif %}
+  {% for item in songs %}
+  <div class="item-wrapper" data-position="{{item.pk}}">
+    <div class="item-title">
+      <a href="{% url 'song' item.id %}">{{item}}</a>
+    
+    
+  </div>
+  {% empty %}
+  <div style="text-align: center; padding-bottom: 10px; line-height: 1em">
+    <h3>No song in this List.</h3>
+    {% comment %}
+    <h3>
+      Create a
+      <a
+        style="text-decoration: none; color: #e53935"
+        href="{% url 'item-create' %}"
+        >New item</a
+      >
+      !
+    </h3>
+    {% endcomment %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock content %}

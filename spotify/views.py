@@ -5,10 +5,18 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
+from django.urls import reverse_lazy
  
 from spotify.models import Song, PlaylistSong
 from .forms import PlaylistSongForm
 from .utils import searchSongs
+
+
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 
 
 class SongList(ListView):
@@ -22,7 +30,20 @@ class SongList(ListView):
         context = self.get_context_data()
         songs, search_query = searchSongs(request)
         context['songs']=songs
-        context['search_query']=search_query        
+        context['search_query']=search_query   
+        allow_empty = self.get_allow_empty()
+        if not allow_empty:
+        # When pagination is enabled and object_list is a queryset,
+        # it's better to do a cheap query than to load the unpaginated
+        # queryset in memory.
+            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+                is_empty = not self.object_list.exists()
+            else:
+                is_empty = not self.object_list
+            if is_empty:
+                raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
+                    'class_name': self.__class__.__name__,
+                })     
         return self.render_to_response(context)
 
 class SongDetail(DetailView):
@@ -71,12 +92,11 @@ def index(request):
 def song(request, pk):
     songObj = Song.objects.get(id=pk)    
     user_list= PlaylistSong.objects.filter(user=request.user)
-    form = PlaylistSongForm()
-    # print(form)
+    form = PlaylistSongForm()    
     if request.method == 'POST':
         if request.user.is_authenticated:
             list_title=request.POST['list_title']
-            # list_song_user= PlaylistSong.objects.filter(user=request.user).filter(list_title=list_title)
+            
             try:
                 list_song_user= PlaylistSong.objects.get(user=request.user, list_title=list_title)
                 print(list_song_user)
@@ -94,21 +114,44 @@ def song(request, pk):
     return render(request, 'spotify/single-song.html', {'song': songObj,'form': form
     })
 
+class PlaylistSongList(LoginRequiredMixin, ListView):
+    model = PlaylistSong
+    context_object_name = 'playlists'
 
-# def project(request, pk):
-#     projectObj = Project.objects.get(id=pk)
-#     form = ReviewForm()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['playlists'] = context['playlists'].filter(user=self.request.user)  
+        return context
 
-#     if request.method == 'POST':
-#         form = ReviewForm(request.POST)
-#         review = form.save(commit=False)
-#         review.project = projectObj
-#         review.owner = request.user.profile
-#         review.save()
+class PlaylistSongDetail(LoginRequiredMixin, DetailView):
+    model = PlaylistSong
+    context_object_name = 'playlist'
+    template_name = 'spotify/playlist_detail.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)        
+        context['songs'] = self.object.songs.all()
+        return context
 
-#         projectObj.getVoteCount
+class PlaylistSongCreate(LoginRequiredMixin, CreateView):
+    model = PlaylistSong
+    fields = ["list_title"]
+    success_url = reverse_lazy('playlists')
 
-#         messages.success(request, 'Your review was successfully submitted!')
-#         return redirect('project', pk=projectObj.id)
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(PlaylistSongCreate, self).form_valid(form)
 
-#     return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form})
+class PlaylistSongUpdate(LoginRequiredMixin, UpdateView):
+    model = PlaylistSong
+    fields = ["list_title" , ]
+    success_url = reverse_lazy('playlists')
+
+
+class PlaylistSongDeleteView(LoginRequiredMixin, DeleteView):
+    model = PlaylistSong
+    context_object_name = 'playlist'
+    success_url = reverse_lazy('playlists')
+    def get_queryset(self):
+        owner = self.request.user
+        return self.model.objects.filter(user=owner)
+

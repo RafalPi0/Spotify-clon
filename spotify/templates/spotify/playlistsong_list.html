@@ -1,0 +1,43 @@
+{% extends "main.html" %} {% block content %}
+
+<div id="palylist" class="palylist-items-wrapper">
+  <div class="item--head">
+    <h1>All your play list</h1>
+  </div>
+
+  {% for item in playlists %}
+  <div class="item-wrapper" data-position="{{item.pk}}">
+    <div class="item-title">
+      <a href="{% url 'playlist' item.id %}">{{item.list_title}}</a>
+    </div>
+
+    <div class="item-update">
+      <a href="{% url 'playlist-update' item.id %}">update</a>
+    </div>
+    <div class="item-delete">
+      <a href="{% url 'playlist-delete' item.id %}">delete</a>
+    </div>
+    <div class="item-controls">
+      {% comment %}
+      <a class="delete-link" href="{% url 'item-delete' item.id %}">&#215;</a>
+      <span class="handle">&nbsp;&#10247;</span> {% endcomment %}
+    </div>
+  </div>
+
+  {% empty %}
+  <div style="text-align: center; padding-bottom: 10px; line-height: 1em">
+    <h3>No play list are created.</h3>
+    <h3>
+      Create a
+      <a
+        style="text-decoration: none; color: #e53935"
+        href="{% url 'playlist-create' %}"
+        >New paly list</a
+      >
+      !
+    </h3>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock content %}

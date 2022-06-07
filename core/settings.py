@@ -23,10 +23,8 @@ DEBUG = os.environ.get('DEBUG') == "True"
 
 # SECURITY WARNING: keep the secret key used in production secret!
   
-# SECRET_KEY = os.environ.get('SECRET_KEY')
-SECRET_KEY = "django-insecure-uua(xg5o&$)bv^il&ki2b31b@sgvkwd%$6#u2nwcmt(svvlk2#"
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
 
 ALLOWED_HOSTS = [os.environ.get('DOMAIN'),]
 if DEBUG:

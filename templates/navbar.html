@@ -12,13 +12,13 @@
   <div class="header__link">
     <ul class="header__menu">
       <li class="header__menuItem">
-        <a href="/" class="header__menuItem-a"><i class="fa-solid fa-house"></i> Home </a>
+        <a href="{% url 'songs' %}" class="header__menuItem-a"><i class="fa-solid fa-house"></i> Home </a>
       </li>
       <li class="header__menuItem">
         <a href="/" class="header__menuItem-a"><i class="fa-solid fa-magnifying-glass"></i> Szukaj </a>
       </li>
       <li class="header__menuItem">
-        <a href="/" class="header__menuItem-a"> <i class="fa-solid fa-book"></i> Biblioteka </a>
+        <a href="{% url 'playlists' %}" class="header__menuItem-a"> <i class="fa-solid fa-book"></i> Biblioteka </a>
       </li>
       <li class="header__menuItem">
         <a href="/admin" class="header__menuItem-a"> <i class="fa-solid fa-book"></i> Admin </a>

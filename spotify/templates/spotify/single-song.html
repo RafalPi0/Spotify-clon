@@ -1,5 +1,5 @@
 {% extends 'main.html' %} {% block content %}
-
+<a style="position: absolute" href="{{request.META.HTTP_REFERER}}">Go back</a>
 <!-- Main Section -->
 <main class="singleSong">
   <div class="container">
@@ -7,7 +7,7 @@
        <div class="column">
         
         <div class="singleSong_author">
-          <a href="/"><i class="fa-solid fa-backward"></i> go back</a>
+          
          </div>
        
       </div>

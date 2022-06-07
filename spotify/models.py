@@ -20,12 +20,11 @@ class Song(models.Model):
     def __str__(self):        
         return self.song_title
     @property
-    def imageUrl(self):
-        
+    def imageUrl(self):        
         try:
             img= self.featured_image.url
         except:
-            img= "default.jpg"
+            img= ""
         return img
 
         
