@@ -1,6 +1,10 @@
+from django.forms import ValidationError
 from django.test import TestCase
+from django.urls import resolve, reverse
 from spotify.models import Song, Author
 from django.utils import timezone
+
+from spotify.views import SongDetail, SongList
 
 
 # models test
@@ -12,6 +16,19 @@ class SongTest(TestCase):
     def test_Song_creation(self):
         w = self.create_Song()
         self.assertTrue(isinstance(w, Song))
+    
+    def test_list_url_is_resolved(self):
+        url= reverse("songs")
+        self.assertEquals(resolve(url).func.view_class, SongList )
+        
+    def test_list_url_is_resolved(self):
+        url= reverse("song" ,args=['id-of-song'])
+        self.assertEquals(resolve(url).func.view_class, SongDetail )
+        
+    def test_song_model_validation(self):
+        song=Song()
+        with self.assertRaises(ValidationError):
+            song.full_clean()
 
 
 class AuthorTest(TestCase):

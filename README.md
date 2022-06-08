@@ -10,7 +10,7 @@ You need to have docker installed on your system to run this project.
 ## Try it
 
 ```bash
-git clone git@github.com:django-cms/django-cms-quickstart.git
+
 cd django-cms-quickstart
 docker compose build web
 docker compose up -d database_default

@@ -1,6 +1,6 @@
 """core URL Configuration
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The `urlpatterns` list routes URLs to  For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
 Examples:
 Function views
@@ -16,16 +16,25 @@ Including another URLconf
 
 from django.urls import path
 
-from . import views
+from .views import SongList, SongDetail ,PlaylistSongDetail ,PlaylistSongCreate, PlaylistSongUpdate, PlaylistSongDeleteView ,PlaylistSongList, CustomLoginView,  RegisterPage
+
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(next_page='songs'), name='logout'),
+    path('register/', RegisterPage.as_view(), name='register'),
     # path('', views.index, name="songs" ),
-    path('', views.SongList.as_view(), name='songs'),
-    path('song/<str:pk>/', views.SongDetail.as_view(), name='song'),
-    path('playlist/<int:pk>/', views.PlaylistSongDetail.as_view(), name='playlist'),
-    path('playlist-create/', views.PlaylistSongCreate.as_view(), name='playlist-create'),
-    path('playlist-update/<int:pk>/', views.PlaylistSongUpdate.as_view(), name='playlist-update'),
-    path('playlist-delete/<int:pk>/',views.PlaylistSongDeleteView.as_view(), name='playlist-delete'),
-    path('playlist', views.PlaylistSongList.as_view(), name='playlists'),
-    # path('song/<str:pk>/', views.song, name="song"),
+    path('', SongList.as_view(), name='songs'),
+    path('song/<str:pk>/', SongDetail.as_view(), name='song'),
+
+    path('playlist/<int:pk>/', PlaylistSongDetail.as_view(), name='playlist'),
+    path('playlist-create/', PlaylistSongCreate.as_view(), name='playlist-create'),
+    path('playlist-update/<int:pk>/', PlaylistSongUpdate.as_view(), name='playlist-update'),
+    path('playlist', PlaylistSongList.as_view(), name='playlists'),
+    path('playlist-delete/<int:pk>/',PlaylistSongDeleteView.as_view(), name='playlist-delete'),
+
+
+    
 ]

@@ -4,40 +4,96 @@
 <main class="singleSong">
   <div class="container">
     <div class="layout">
-       <div class="column">
-        
-        <div class="singleSong_author">
-          
-         </div>
-       
+      <div class="column">
+        <div class="singleSong_author"></div>
       </div>
-       <div class="column">
-         {% if  song.imageUrl %} <img src="{{song.imageUrl}}" alt="{{song.song_title}}" style="max-width:500px">{% endif %}
-        
+      <div class="column">
+        {% if song.imageUrl %}
+        <img
+          src="{{song.imageUrl}}"
+          alt="{{song.song_title}}"
+          style="max-width: 500px"
+        />{% endif %}
+
         <h3 class="singleSong__subtitle">{{song.song_title}}</h3>
+        {% if song.author %}
         <div class="singleSong_author">
-          {% if song.author %}
+          Author:
           <span>{{song.author}}</span>
-          {% endif %}
         </div>
+        {% endif %}
         <div class="singleSong_addToList">
+         
           {% if user.is_authenticated %}
-          <form class="form" action="{% url 'song' song.id %}" method="POST">
-            {% csrf_token %}            
-            <input class="btn btn--sub btn--lg" type="submit" value="Add Review" />
-            <div class="modal">
+          {% if  list_albyms %}
+          
+          
+          <div class="singleSong_playlist">
+            You have this song in playlist:
+            <ul class="playlist-ul">
+            {% for album in list_albyms %}
+             
+              <li class="playlist-item-li">                
+                <div  class="item-li-a" data-id="{{item_list.id}}"> {{album}}</div>
+              </li>
+             
+              
+              {% endfor %}
+            </ul>
+          </div>
+          
+          {% endif %}
+          <form id="form_add_to_list" class="form" action="{% url 'song' song.id %}" method="POST">
+            {% csrf_token %}
+            <input
+              class="btn btn--sub btn--lg"
+              type="submit"
+              value="Add To New Playlist"
+            />
+            <div class="">
               {% for field in form %}
               <div class="form__field">
-                  <label for="formInput#textarea">{{field.label}}</label>
-                  {{field}}
+                <label for="formInput#textarea">{{field.label}}</label>
+                {{field}}
               </div>
               {% endfor %}
             </div>
-         
-        </form>        
-        {% else %}
-        <a href="">Login to add song to playlist</a>
-        {% endif %}
+          </form>
+          {% if user_list %}
+          <div class="singleSong_playlist">
+            <button class="singleSong_playlist-btn btn" data-toggle="modal" data-target="#exampleModal"">
+              Add to your Playlist ...
+            </button>  
+           
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">You can add to this list</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                  </div><div class="modal-body">
+
+                  <ul class="playlist-ul">
+                    {% for item_list in user_list %}
+                    <li class="playlist-item-li">
+                      
+                      <a  class="item-li-a" data-id="{{item_list.id}}" href="#">{{item_list}}</a>
+                    </li>
+                  </ul>
+                  {% empty %}
+                  
+                  {% endfor %}
+                </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          {% endif %} 
+          {% else %}
+          <a href="{% url 'login' %}">Login to add song to playlist</a>
+          {% endif %}
+          
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 # Create your views here.
 from django.http import HttpResponse
 from django.views.generic.list import ListView
@@ -38,7 +38,10 @@ class SongDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(SongDetail, self).get_context_data(**kwargs)
-        context['user_list']= PlaylistSong.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['user_list']= PlaylistSong.objects.filter(user=self.request.user)
+            context['list_albyms']=  PlaylistSong.objects.filter(user=self.request.user).filter(songs = self.get_object())
+            print(context['list_albyms'])  
         context['form'] = PlaylistSongForm()
         return context 
     
@@ -60,14 +63,10 @@ class SongDetail(DetailView):
                 listSong.save()
                 listSong.songs.add(self.object)
         return self.render_to_response(context)
-	
-
-
-
+ 
 class PlaylistSongList(LoginRequiredMixin, ListView):
     model = PlaylistSong
     context_object_name = 'playlists'
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['playlists'] = context['playlists'].filter(user=self.request.user)  
@@ -77,11 +76,14 @@ class PlaylistSongDetail(LoginRequiredMixin, DetailView):
     model = PlaylistSong
     context_object_name = 'playlist'
     template_name = 'spotify/playlist_detail.html'
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)        
         context['songs'] = self.object.songs.all()
         return context
+    def post(self, request, *args, **kwargs): 
+        self.object = self.get_object()
+        print(self.object)
+        
 
 class PlaylistSongCreate(LoginRequiredMixin, CreateView):
     model = PlaylistSong
@@ -105,32 +107,30 @@ class PlaylistSongDeleteView(LoginRequiredMixin, DeleteView):
         owner = self.request.user
         return self.model.objects.filter(user=owner)
 
-def index(request):
-    songs, search_query = searchSongs(request)
-    custom_range, songs = paginateSongs(request, songs, 6)
-    print(songs)
-    context = {'songs': songs,'search_query': search_query, 'custom_range': custom_range} 
-    return render(request , 'spotify/home.html' ,context)
 
 
-def song(request, pk):
-    songObj = Song.objects.get(id=pk)    
-    user_list= PlaylistSong.objects.filter(user=request.user)
-    form = PlaylistSongForm()    
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            list_title=request.POST['list_title']            
-            try:
-                list_song_user= PlaylistSong.objects.get(user=request.user, list_title=list_title)
-                print(list_song_user)
-                list_song_user.songs.add(songObj)            
-            except PlaylistSong.DoesNotExist:                
-                form = PlaylistSongForm(request.POST)
-                listSong = form.save(commit=False)
-                listSong.user= request.user
-                listSong.save()
-            
-            
-        
-    return render(request, 'spotify/single-song.html', {'song': songObj,'form': form
-    })
+class CustomLoginView(LoginView):
+    template_name = 'spotify/login.html'
+    fields = '__all__'
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse_lazy('songs')
+
+
+class RegisterPage(FormView):
+    template_name = 'spotify/register.html'
+    form_class = UserCreationForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('songs')
+
+    def form_valid(self, form):
+        user = form.save()
+        if user is not None:
+            login(self.request, user)
+        return super(RegisterPage, self).form_valid(form)
+
+    def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect('tasks')
+        return super(RegisterPage, self).get(*args, **kwargs)

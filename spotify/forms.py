@@ -8,9 +8,7 @@ class PlaylistSongForm(ModelForm):
     
     class Meta:
         model = PlaylistSong
-        fields = '__all__'
-        
-       
+        fields = '__all__'  
         exclude = ('user',"songs",)
     
        

@@ -1,7 +1,7 @@
 body {
   background-color: #000;
   color: #fff;
-  font-size: 18px;
+  font-size: 22px;
 }
 li,
 ul {
@@ -11,9 +11,46 @@ ul {
 }
 a {
   color: #fff;
+  text-decoration: none;
+}
+a:hover {
+  color: rgb(214, 214, 214);
+  text-decoration: underline;
 }
 .singleSong {
   margin-top: 2em;
+}
+.login-bar{
+  margin-bottom: 1em;
+}
+.header__menuItem{
+  margin-bottom: 1em;
+}
+.header__menuItem i{
+  margin-right: .5em;
+}
+#searchForm{
+  display: flex;
+}
+#searchForm .btn--sub{
+  margin-left: 1em;
+}
+.song-img{
+  width: 100%;
+  object-fit: cover;
+    overflow: hidden;
+}
+.card-body{
+font-size:20px;
+}
+.three--song{
+  border: 1px solid rgb(104, 104, 104);
+  border-radius:  .4em;
+  overflow: hidden;
+  padding-bottom: .7em;
+}
+.card-body{
+  padding: 0 .5em;
 }
 #page {
   display: grid;
@@ -27,6 +64,7 @@ a {
 }
 .grid.grid--three {
   display: grid;
+  gap: 1em;
 }
 .card.song {
   min-height: 100px;
@@ -53,6 +91,21 @@ a {
 .item-delete {
   flex: 0 0 20%;
 }
+.singleSong_playlist{
+  position: relative;
+}
+.login-bar{
+  display: flex;
+  flex-direction: row-reverse;
+}
+#form_add_to_list{
+  margin-top: 3em;
+  margin-bottom: 3em;
+  display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
 @media (min-width: 570px) {
   #page {
     max-width: 520px;

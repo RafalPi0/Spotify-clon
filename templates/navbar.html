@@ -13,16 +13,15 @@
     <ul class="header__menu">
       <li class="header__menuItem">
         <a href="{% url 'songs' %}" class="header__menuItem-a"><i class="fa-solid fa-house"></i> Home </a>
-      </li>
-      <li class="header__menuItem">
-        <a href="/" class="header__menuItem-a"><i class="fa-solid fa-magnifying-glass"></i> Szukaj </a>
-      </li>
+      </li>      
       <li class="header__menuItem">
         <a href="{% url 'playlists' %}" class="header__menuItem-a"> <i class="fa-solid fa-book"></i> Biblioteka </a>
       </li>
+      {% if request.user.is_superuser %}
       <li class="header__menuItem">
-        <a href="/admin" class="header__menuItem-a"> <i class="fa-solid fa-book"></i> Admin </a>
+        <a href="/admin" class="header__menuItem-a"><i class="fa-solid fa-lock"></i>Admin </a>
       </li>
+      {% endif %}      
     </ul>
-  </div>
+  </div>  
 </div>

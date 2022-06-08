@@ -31,11 +31,12 @@ class Song(models.Model):
 class Author(models.Model):
     author_name = models.CharField(max_length=200)
     author_surname = models.CharField(max_length=200)
-    featured_image =models.ImageField(null=True, blank=True, default='default.jpg')
+    # featured_image =models.ImageField(null=True, blank=True, default='default.jpg')
     create = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
     def __str__(self):
        return f'{self.author_name} {self.author_surname}'
+    
 
 class PlaylistSong(models.Model):  
     list_title = models.CharField(max_length=200)  
