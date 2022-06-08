@@ -13,7 +13,6 @@ You need to have docker installed on your system to run this project.
 
 cd django-cms-quickstart
 docker compose build web
-docker compose up -d database_default
 docker compose run web python manage.py migrate
 docker compose run web python manage.py createsuperuser
 docker compose up -d
